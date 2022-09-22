@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 // https://registry.npmjs.com/-/v1/search?text=@dynamic-data&size=100
 
 // https://api.npmjs.org/downloads/range/last-week/{@dynamic-data/...}
@@ -7,6 +7,7 @@ function App() {
 
   const [data, setData] = useState([])
   const [readyData,setReadyData] = useState([])
+  const [totalCount,setTotalCount] = useState([])
   const [isReady, setIsReady] = useState(false)
 
   const calculateDownloads = (object, name) => {
@@ -41,7 +42,13 @@ function App() {
 
   useEffect(()=>{
     if(readyData.length===data.length){
-      console.log(readyData)
+
+      let count = 0
+      readyData.forEach( item =>{
+        count = count +  item.totalDownloads
+      })
+
+      setTotalCount(count)
       setIsReady(true)
     }
   },[readyData])
@@ -53,7 +60,7 @@ function App() {
         Loading ...
       </div>
       : 
-      <div>
+      <div style={{display:"flex"}}>
         <table>
           <thead>
             <tr>
@@ -65,7 +72,7 @@ function App() {
           {
             readyData.map(item=>{
               return(
-                <tr>
+                <tr key={item.packageName}>
                   <td>{item.packageName}</td>
                   <td>{item.totalDownloads}</td>
                 </tr>
@@ -74,6 +81,8 @@ function App() {
           }
           </tbody>
         </table>
+
+        <p style={{paddingTop: "40px", fontSize: "20px"}}>Total Count: {totalCount}</p>
       </div>
       }
     </div>
