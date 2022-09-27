@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
-// https://registry.npmjs.com/-/v1/search?text=@dynamic-data&size=100
-
-// https://api.npmjs.org/downloads/range/last-week/{@dynamic-data/...}
 
 function App() {
 
   const [data, setData] = useState([])
-  const [readyData,setReadyData] = useState([])
-
   const [weeklyDownloads,setweeklyDownloads] = useState([])
   const [allTimeDownloads, setAllTimeDownloads] = useState([])
   const [packagesCreateData, setPackagesCreateData] = useState([])
+  const [customDownloads, setCustomDownloads] = useState([])
 
   const [allTimeTotal, setAllTimeTotal] = useState(0)
   const [weeklyTotal, setWeeklyTotal] = useState(0)
 
+  const [readyData,setReadyData] = useState([])
   const [isReady, setIsReady] = useState(false)
+
+  const [customStartData,setCustomStartData] = useState()
+  const [customEndData,setCustomEndData] = useState()
 
   const d = new Date(); 
   const today = d.setDate(d.getDate()); 
@@ -35,14 +35,17 @@ function App() {
         setWeeklyTotal(prevData => prevData + item.downloads)
       })
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   },[weeklyDownloads])
 
+  //Calculate All Time Downloads
   useEffect(()=>{
     if (allTimeDownloads.length ===  data.length){
       allTimeDownloads.forEach(item=>{
         setAllTimeTotal(prevData => prevData + item.downloads)
       })
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   },[allTimeDownloads])
 
   //Get all time downloads
@@ -60,11 +63,10 @@ function App() {
         .then(res => setAllTimeDownloads(prevData =>[...prevData, res]))
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[packagesCreateData])
 
   useEffect(()=>{
-    console.log("data", data)
-
     data.forEach(item =>{
       fetch(`https://api.npmjs.org/downloads/point/last-week/${item.package.name}`)
       .then(res => res.json())
@@ -78,29 +80,24 @@ function App() {
     })
   },[data])
 
+  //Set custom Data range
   useEffect(()=>{
+    if(Date.parse(customStartData) < Date.parse(customEndData)){
+      setCustomDownloads([])
+      data.forEach(item=>{
+        fetch(`https://api.npmjs.org/downloads/point/${customStartData}:${customEndData}/${item.package.name}`)
+        .then(res => res.json())
+        .then(res => setCustomDownloads(prevData =>[...prevData, res]))
+      })
+    }else{
+      setCustomDownloads([])
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  },[customStartData,customEndData])
 
-  // //Initailize array of objects.
-  // let myArray = [
-  //   {id: 0, name: "Jhon"},
-  //   {id: 1, name: "Sara"},
-  //   {id: 2, name: "Domnic"},
-  //   {id: 3, name: "Bravo"}
-  // ],
-      
-  // //Find index of specific object using findIndex method.    
-  // objIndex = myArray.findIndex((obj => obj.id == 1));
-
-  // //Log object to Console.
-  // console.log("Before update: ", myArray[objIndex])
-
-  // //Update object's name property.
-  // myArray[objIndex].name = "Laila"
-
-  // //Log object to console again.
-  // console.log("After update: ", myArray[objIndex])
-
+  useEffect(()=>{
     if(data.length === weeklyDownloads.length && data.length === allTimeDownloads.length){
+      setReadyData([])
       console.log("data", data)
       console.log("weeklyDownloads", weeklyDownloads)
       console.log("allTimeDownloads", allTimeDownloads)
@@ -108,21 +105,25 @@ function App() {
       weeklyDownloads.forEach(item=>{
         let dataHolder = {}
 
-        let objIndex = allTimeDownloads.findIndex((obj => obj.package === item.package));
+        let allTimeIndex = allTimeDownloads.findIndex((obj => obj.package === item.package));
 
         dataHolder["packageName"] = item.package 
         dataHolder["weeklyDownloads"] = item.downloads
-        dataHolder["allDownloads"] = allTimeDownloads[objIndex].downloads
-        dataHolder["allDownloadsRange"] = `${allTimeDownloads[objIndex].start} - ${allTimeDownloads[objIndex].end}`
-
-        console.log(dataHolder)
+        dataHolder["allDownloads"] = allTimeDownloads[allTimeIndex].downloads
+        dataHolder["allDownloadsRange"] = `${allTimeDownloads[allTimeIndex].start} - ${allTimeDownloads[allTimeIndex].end}`
+        if(customDownloads.length === data.length){
+          let customIndex = customDownloads.findIndex((obj => obj.package === item.package));
+          dataHolder["customDateDownloads"] = customDownloads[customIndex].downloads
+        }
+        console.log()
         setReadyData(prevData => [...prevData, dataHolder])
       })
       if(data.length === readyData.length){
         setIsReady(true)
       }
     }
-  },[weeklyDownloads,allTimeDownloads])
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  },[weeklyDownloads,allTimeDownloads,customDownloads])
 
   return (
     <div className="App">
@@ -142,7 +143,22 @@ function App() {
               <th>Package Name</th>
               <th>Weekly Downloads</th>
               <th>All Time</th>
-              <th>Set Date</th>
+              <th>
+                Set Date 
+                <form>
+                  <input 
+                    type="date"
+                    onChange={
+                      (event) => setCustomStartData(event.target.value)
+                    }/>
+                     - 
+                    <input 
+                    type="date"
+                    onChange={
+                      (event) => setCustomEndData(event.target.value)
+                    }/>
+                </form>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -153,7 +169,7 @@ function App() {
                   <td>{item.packageName}</td>
                   <td>{item.weeklyDownloads}</td>
                   <td>{item.allDownloads} || {item.allDownloadsRange}</td>
-                  <td>0</td>
+                  <td>{customDownloads.length === data.length? item.customDateDownloads : 0}</td>
                 </tr>
               )
             })
