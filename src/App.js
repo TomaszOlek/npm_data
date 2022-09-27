@@ -108,12 +108,14 @@ function App() {
       weeklyDownloads.forEach(item=>{
         let dataHolder = {}
 
-        let objIndex = allTimeDownloads.findIndex((obj => obj.package == item.package));
+        let objIndex = allTimeDownloads.findIndex((obj => obj.package === item.package));
 
         dataHolder["packageName"] = item.package 
         dataHolder["weeklyDownloads"] = item.downloads
         dataHolder["allDownloads"] = allTimeDownloads[objIndex].downloads
+        dataHolder["allDownloadsRange"] = `${allTimeDownloads[objIndex].start} - ${allTimeDownloads[objIndex].end}`
 
+        console.log(dataHolder)
         setReadyData(prevData => [...prevData, dataHolder])
       })
       if(data.length === readyData.length){
@@ -150,7 +152,7 @@ function App() {
                 <tr key={item.packageName}>
                   <td>{item.packageName}</td>
                   <td>{item.weeklyDownloads}</td>
-                  <td>{item.allDownloads}</td>
+                  <td>{item.allDownloads} || {item.allDownloadsRange}</td>
                   <td>0</td>
                 </tr>
               )
