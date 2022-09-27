@@ -16,5 +16,15 @@ th, td{
   padding: 10px;
 }
 table{
- margin: 50px;
+ margin: 10px 50px;
+}
+.container{
+  display: flex;
+  flex-direction: column;
+}
+.total_count{
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  margin-left: 50px;
 }
