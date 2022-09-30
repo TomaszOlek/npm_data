@@ -21,10 +21,84 @@ table{
 .container{
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 .total_count{
   display: flex;
   flex-direction: row;
   gap: 30px;
   margin-left: 50px;
+}
+
+.show{
+  display: block;
+  position: fixed;
+}
+.hide{
+  display: none !important;
+}
+
+.chart{
+  width: 99vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.content{
+  content: "";
+  width: 70vw;
+  height: 50vh;
+  border-radius: 20px;
+  border: 1px solid black;
+  background-color: white;
+  padding: 5px 30px;
+}
+.package_name{
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.header{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.close {
+  position: relative;
+  right: -15px;
+  top: 20px;
+  width: 32px;
+  height: 32px;
+  opacity: 0.3;
+}
+.close:hover {
+  opacity: 1;
+}
+.close:before, .close:after {
+  position: absolute;
+  content: ' ';
+  height: 33px;
+  width: 2px;
+  background-color: #333;
+}
+.close:before {
+  transform: rotate(45deg);
+}
+.close:after {
+  transform: rotate(-45deg);
+}
+
+.chart_data{
+  content: "";
+  height: 70%;
+  width: 100%;
+}
+.chart_custom_tooltip{
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: rgba(51, 51, 51, 0.3);
 }
